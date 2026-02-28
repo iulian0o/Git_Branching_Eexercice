@@ -1,7 +1,6 @@
 const db = require('../config/database');
 
 class User {
-  // Create a new user
   static async create(userData) {
     const { username, email, full_name } = userData;
     const query = `
@@ -19,7 +18,6 @@ class User {
     }
   }
 
-  // Get all users
   static async findAll() {
     const query = 'SELECT * FROM users ORDER BY created_at DESC';
     
@@ -31,7 +29,6 @@ class User {
     }
   }
 
-  // Get user by ID
   static async findById(id) {
     const query = 'SELECT * FROM users WHERE id = $1';
     
@@ -43,7 +40,6 @@ class User {
     }
   }
 
-  // Update user by ID
   static async update(id, userData) {
     const { username, email, full_name } = userData;
     const query = `
@@ -65,7 +61,6 @@ class User {
     }
   }
 
-  // Delete user by ID
   static async delete(id) {
     const query = 'DELETE FROM users WHERE id = $1 RETURNING *';
     
