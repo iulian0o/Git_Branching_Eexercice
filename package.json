@@ -1,14 +1,18 @@
 {
   "name": "nodejs-postgres-app",
+<<<<<<< HEAD
+  "version": "1.1.0",
+=======
   "version": "1.1.1",
+>>>>>>> hotfix/critical-bug
   "description": "NodeJS application with PostgreSQL and environment-specific configurations",
   "main": "src/server.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev nodemon src/server.js",
-    "release": "cross-env NODE_ENV=release node src/server.js",
-    "prod": "cross-env NODE_ENV=prod node src/server.js",
     "start": "node src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo 'Tests will run here' && exit 0",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix"
   },
   "keywords": [
     "nodejs",

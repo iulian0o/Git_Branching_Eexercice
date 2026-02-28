@@ -1,0 +1,19 @@
+name: Update Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  update-comment:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Update the comment
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            This comment has been updated!
+            Original comment was posted at: ${{ github.event.comment.created_at }}
+          edit-mode: replace

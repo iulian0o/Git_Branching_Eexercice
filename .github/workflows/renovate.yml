@@ -1,0 +1,35 @@
+name: Renovate
+
+on:
+  # Run on schedule (every Monday at 9am)
+  schedule:
+    - cron: '0 9 * * 1'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+  
+  # Run on push to renovate configuration
+  push:
+    paths:
+      - 'renovate.json'
+      - '.github/workflows/renovate.yml'
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v40.1.12
+        with:
+          configurationFile: renovate.json
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          # Optional: Add GitHub token for higher rate limits
+          GITHUB_COM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Optional: Enable Renovate logs
+          LOG_LEVEL: 'debug'

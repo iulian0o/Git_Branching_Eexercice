@@ -7,21 +7,17 @@ const routes = require('./routes');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Request logging middleware
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// API routes
 app.use('/api', routes);
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to NodeJS PostgreSQL API',
@@ -40,7 +36,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -48,7 +43,6 @@ app.use((req, res) => {
   });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
   res.status(500).json({
@@ -57,19 +51,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize database and start server
 const startServer = async () => {
   try {
-    // Initialize database schema
     await db.initDatabase();
     
-    // Start listening
     app.listen(config.port, () => {
       console.log('='.repeat(50));
-      console.log(`🚀 Server running in ${config.env.toUpperCase()} mode`);
-      console.log(`📡 Listening on port ${config.port}`);
-      console.log(`🔗 API URL: http://localhost:${config.port}`);
-      console.log(`💾 Database: ${config.database.database}`);
+      console.log(`Server running in ${config.env.toUpperCase()} mode`);
+      console.log(`Listening on port ${config.port}`);
+      console.log(`API URL: http://localhost:${config.port}`);
+      console.log(`Database: ${config.database.database}`);
       console.log('='.repeat(50));
     });
   } catch (err) {

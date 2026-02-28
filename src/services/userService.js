@@ -1,15 +1,12 @@
 const User = require('../models/User');
 
 class UserService {
-  // Create a new user
   async createUser(userData) {
     try {
-      // Validate required fields
       if (!userData.username || !userData.email) {
         throw new Error('Username and email are required');
       }
 
-      // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(userData.email)) {
         throw new Error('Invalid email format');
@@ -29,7 +26,6 @@ class UserService {
     }
   }
 
-  // Get all users
   async getAllUsers() {
     try {
       const users = await User.findAll();
@@ -46,7 +42,6 @@ class UserService {
     }
   }
 
-  // Get user by ID
   async getUserById(id) {
     try {
       const user = await User.findById(id);
@@ -67,10 +62,8 @@ class UserService {
     }
   }
 
-  // Update user
   async updateUser(id, userData) {
     try {
-      // Email validation if email is being updated
       if (userData.email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(userData.email)) {
@@ -97,7 +90,6 @@ class UserService {
     }
   }
 
-  // Delete user
   async deleteUser(id) {
     try {
       const user = await User.delete(id);
@@ -121,3 +113,5 @@ class UserService {
 }
 
 module.exports = new UserService();
+
+// 123
