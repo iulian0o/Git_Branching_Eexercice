@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 
-// User CRUD routes
 router.post('/', userController.create.bind(userController));
 router.get('/', userController.getAll.bind(userController));
 router.get('/:id', userController.getById.bind(userController));
