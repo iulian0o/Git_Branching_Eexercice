@@ -57,10 +57,10 @@ const startServer = async () => {
     
     app.listen(config.port, () => {
       console.log('='.repeat(50));
-      console.log(`🚀 Server running in ${config.env.toUpperCase()} mode`);
-      console.log(`📡 Listening on port ${config.port}`);
-      console.log(`🔗 API URL: http://localhost:${config.port}`);
-      console.log(`💾 Database: ${config.database.database}`);
+      console.log(`Server running in ${config.env.toUpperCase()} mode`);
+      console.log(`Listening on port ${config.port}`);
+      console.log(`API URL: http://localhost:${config.port}`);
+      console.log(`Database: ${config.database.database}`);
       console.log('='.repeat(50));
     });
   } catch (err) {
