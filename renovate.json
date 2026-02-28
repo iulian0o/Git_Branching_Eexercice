@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "timezone": "Europe/Paris",
+  "schedule": [
+    "before 10am on Monday"
+  ],
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "assignees": [],
+  "reviewers": [],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "automergeType": "branch",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Require manual approval for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"]
+    },
+    {
+      "description": "Group all non-major dependencies",
+      "groupName": "all non-major dependencies",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "description": "Group ESLint packages",
+      "matchPackagePatterns": ["^eslint"],
+      "groupName": "eslint packages"
+    },
+    {
+      "description": "Weekly updates for development dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "schedule": ["before 10am on Monday"]
+    },
+    {
+      "description": "Daily security updates",
+      "matchUpdateTypes": ["patch"],
+      "matchCurrentVersion": "!/^0/",
+      "matchPackagePatterns": ["*"],
+      "schedule": ["at any time"],
+      "labels": ["security"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security", "urgent"],
+    "assignees": []
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 10am on the first day of the month"]
+  },
+  "rangeStrategy": "bump",
+  "semanticCommits": "enabled",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "rebaseWhen": "conflicted",
+  "ignoreDeps": []
+}
