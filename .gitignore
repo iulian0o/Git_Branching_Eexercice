@@ -1,3 +1,4 @@
+git commit -m "feat: Update application files"
 # Dependencies
 node_modules/
 npm-debug.log*
