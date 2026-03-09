@@ -1,24 +1,19 @@
 const { Pool } = require('pg');
 const config = require('./config');
 
-// Create connection pool
-const pool = new Pool(config.database);
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Test connection
-pool.on('connect', () => {
-  console.log('✓ Connected to PostgreSQL database');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || config.database.connectionString,
+  
+  ...(process.env.DATABASE_URL ? {} : config.database),
+
+  ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
-
-// Initialize database schema
 const initDatabase = async () => {
   const client = await pool.connect();
   try {
-    // Create users table if it doesn't exist
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
