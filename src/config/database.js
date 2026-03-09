@@ -1,13 +1,17 @@
 const { Pool } = require('pg');
 const config = require('./config');
 
+// Determine connection settings
 const isProduction = process.env.NODE_ENV === 'production';
 
 const pool = new Pool({
+  // 1. Prioritize the connection string from Render/Environment
   connectionString: process.env.DATABASE_URL || config.database.connectionString,
   
+  // 2. Fallback for local dev if you aren't using a connection string there
   ...(process.env.DATABASE_URL ? {} : config.database),
 
+  // 3. SSL is usually required for cloud-hosted databases
   ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
