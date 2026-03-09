@@ -1,0 +1,110 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest image
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+
+      - name: Deploy to staging (Docker Compose example)
+        run: |
+          echo "Deploying to staging environment..."
+          # This is where you would deploy to your cloud provider
+          # Examples provided below for different providers
+
+      # OPTION 1: Deploy to DigitalOcean (if you have a droplet)
+      - name: Deploy to DigitalOcean
+        if: false  # Set to true to enable
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+            docker stop nodejs-app-staging || true
+            docker rm nodejs-app-staging || true
+            docker run -d \
+              --name nodejs-app-staging \
+              -p 3000:3000 \
+              -e NODE_ENV=staging \
+              -e DB_HOST=${{ secrets.STAGING_DB_HOST }} \
+              -e DB_USER=${{ secrets.STAGING_DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
+              -e DB_NAME=${{ secrets.STAGING_DB_NAME }} \
+              --restart unless-stopped \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+
+      # OPTION 2: Deploy to AWS ECS
+      - name: Deploy to AWS ECS
+        if: false  # Set to true to enable
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: .aws/task-definition-staging.json
+          service: nodejs-app-staging
+          cluster: staging-cluster
+          wait-for-service-stability: true
+
+      # OPTION 3: Deploy to Azure Container Instances
+      - name: Deploy to Azure
+        if: false  # Set to true to enable
+        uses: azure/aci-deploy@v1
+        with:
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          dns-name-label: nodejs-app-staging
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+          name: nodejs-app-staging
+          location: 'eastus'
+          environment-variables: NODE_ENV=staging
+          secure-environment-variables: |
+            DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}
+
+      # OPTION 4: Deploy to Render.com (simple deployment)
+      - name: Trigger Render Deploy
+        if: false  # Set to true to enable
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_STAGING }}
+
+      # OPTION 5: Deploy to Railway.app
+      - name: Deploy to Railway
+        if: false  # Set to true to enable
+        run: |
+          curl -X POST https://railway.app/api/v2/deploy \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}", "environmentId": "${{ secrets.RAILWAY_ENV_STAGING }}"}'
+
+      - name: Deployment Summary
+        run: |
+          echo "### Deployment Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

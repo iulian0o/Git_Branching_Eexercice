@@ -1,8 +1,10 @@
 const dotenv = require('dotenv');
 const path = require('path');
 
+// Determine which environment to use
 const env = process.env.NODE_ENV || 'dev';
 
+// Load the appropriate .env file (from project root, not src folder)
 const envFile = `.env.${env}`;
 const result = dotenv.config({ path: path.resolve(__dirname, '..', '..', envFile) });
 
@@ -13,6 +15,7 @@ if (result.error) {
 
 console.log(`✓ Loaded configuration for: ${env.toUpperCase()} environment`);
 
+// Export configuration object
 module.exports = {
   env: process.env.NODE_ENV,
   port: parseInt(process.env.PORT, 10),

@@ -1,0 +1,85 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://production.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest image
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+
+      - name: Deploy to production (Docker Compose example)
+        run: |
+          echo "Deploying to production environment..."
+          # Production deployment happens here
+
+      # OPTION 1: Deploy to DigitalOcean Production
+      - name: Deploy to DigitalOcean Production
+        if: true  # Enable this option
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+            docker stop nodejs-app-prod || true
+            docker rm nodejs-app-prod || true
+            docker run -d \
+              --name nodejs-app-prod \
+              -p 3000:3000 \
+              -e NODE_ENV=production \
+              -e DB_HOST=${{ secrets.PROD_DB_HOST }} \
+              -e DB_USER=${{ secrets.PROD_DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }} \
+              -e DB_NAME=${{ secrets.PROD_DB_NAME }} \
+              --restart unless-stopped \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+            
+            # Health check
+            sleep 5
+            curl -f http://localhost:3000/api/health || exit 1
+
+      - name: Deployment Summary
+        run: |
+          echo "### Production Deployment Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Notify deployment
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Production deployment succeeded!"
+          else
+            echo "❌ Production deployment failed!"
+          fi

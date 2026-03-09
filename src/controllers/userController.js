@@ -1,6 +1,7 @@
 const userService = require('../services/userService');
 
 class UserController {
+  // Create a new user
   async create(req, res) {
     try {
       const result = await userService.createUser(req.body);
@@ -18,6 +19,7 @@ class UserController {
     }
   }
 
+  // Get all users
   async getAll(req, res) {
     try {
       const result = await userService.getAllUsers();
@@ -35,6 +37,7 @@ class UserController {
     }
   }
 
+  // Get user by ID
   async getById(req, res) {
     try {
       const { id } = req.params;
@@ -53,6 +56,7 @@ class UserController {
     }
   }
 
+  // Update user
   async update(req, res) {
     try {
       const { id } = req.params;
@@ -71,6 +75,7 @@ class UserController {
     }
   }
 
+  // Delete user
   async delete(req, res) {
     try {
       const { id } = req.params;
